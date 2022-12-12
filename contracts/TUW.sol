@@ -11,9 +11,11 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import '@openzeppelin/contracts/utils/cryptography/MerkleProof.sol';
 import "./utilities/EnumDeclaration.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 contract TheUnchainedWolfs is ERC721, ERC2981, Pausable, Ownable, ERC721Burnable, EIP712, ReentrancyGuard {
     using Strings for uint256;
+    using SafeERC20 for IERC20;
 
     bytes32 public merkleRoot;
     mapping(address => bool) public whitelistClaimed;
@@ -182,7 +184,7 @@ contract TheUnchainedWolfs is ERC721, ERC2981, Pausable, Ownable, ERC721Burnable
     //**********************************************************/
     function AcceptPayment(uint256 _tokenamount) public returns(bool) 
     { 
-       payableToken.transfer(address(this), _tokenamount);
+       payableToken.safeTransfer(address(this), _tokenamount);
        return true;
    }
 

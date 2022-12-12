@@ -10,12 +10,10 @@ import "@openzeppelin/contracts/utils/cryptography/draft-EIP712.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import '@openzeppelin/contracts/utils/cryptography/MerkleProof.sol';
 import "./utilities/EnumDeclaration.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+
 
 contract TheUnchainedWolfs is ERC721, ERC2981, Pausable, Ownable, ERC721Burnable, EIP712, ReentrancyGuard {
     using Strings for uint256;
-    using SafeERC20 for IERC20;
 
     bytes32 public merkleRoot;
     mapping(address => bool) public whitelistClaimed;
@@ -30,7 +28,6 @@ contract TheUnchainedWolfs is ERC721, ERC2981, Pausable, Ownable, ERC721Burnable
     address public constant daoAddress = 0xa33CF97c010F9E4bB06d0851E5BC3a6C02F85739;
 
     bool public payChainToken = true;
-    IERC20 public payableToken;
     //WOLF Collection
      mapping (Collection=> Chest)  public WolfCollection;
 
@@ -63,10 +60,6 @@ contract TheUnchainedWolfs is ERC721, ERC2981, Pausable, Ownable, ERC721Burnable
       if(payChainToken){
       require(msg.value >= cost , 'Insufficient funds!');
       return true;
-      }
-      if(!payChainToken){
-        require(cost > GetAllowance(), "Please approve tokens before transferring");
-        return AcceptPayment(cost);
       }
       return false;
   }
@@ -163,9 +156,6 @@ contract TheUnchainedWolfs is ERC721, ERC2981, Pausable, Ownable, ERC721Burnable
     whitelistMintEnabled = _state;
   }
 
-  function setPaymentToken(address token) public onlyOwner {
-        payableToken = IERC20(token);
-    }
 
   function withdraw() public onlyOwner nonReentrant{
     uint256 balance = address(this).balance;
@@ -178,20 +168,6 @@ contract TheUnchainedWolfs is ERC721, ERC2981, Pausable, Ownable, ERC721Burnable
     require(os);
     // =============================================================================
   }
-
-    //***********************************************************/
-    //***************************Payable Functions***************/
-    //**********************************************************/
-    function AcceptPayment(uint256 _tokenamount) public returns(bool) 
-    { 
-       payableToken.safeTransfer(address(this), _tokenamount);
-       return true;
-   }
-
-   function GetAllowance() public view returns(uint256){
-       return payableToken.allowance(msg.sender, address(this));
-   }
-
 
     //***********************************************************/
     //***************************Royalty Functions***************/
